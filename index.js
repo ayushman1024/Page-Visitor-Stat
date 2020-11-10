@@ -1,6 +1,5 @@
 const express = require('express')
 const path = require('path')
-const router = express.Router();
 const PORT = process.env.PORT || 5000 ;
 const app = express();
 const cors = require('cors')
@@ -19,8 +18,10 @@ app
   .listen(PORT, () => console.log(`Listening on ${ PORT }`));
 
 const uri = "mongodb+srv://admin:admin@realmcluster.dvyjd.mongodb.net/ghpage?retryWrites=true&w=majority";
-const client = new MongoClient(uri, { useNewUrlParser: true , useUnifiedTopology: true });
 
+/**
+ * POST controller for /counter path
+ */
 app.post('/counter', cors(), (req, res) => {
   MongoClient.connect(uri, (err, client) => {
     let collection = client.db("ghpage").collection("user_counter");
@@ -34,6 +35,9 @@ app.post('/counter', cors(), (req, res) => {
   });
 })
 
+/**
+ * /counter with path variable "page"
+ */
 app.get('/counter/:page', function (req, res) {
   MongoClient.connect(uri, (err, client) => {
     let collection = client.db("ghpage").collection("user_counter");
@@ -47,17 +51,18 @@ app.get('/counter/:page', function (req, res) {
   });
 })
 
+/**
+ * Used in github welcome page hidden under image to track visitor
+ */
 app.get('/counterimg/:page', function (req, res) {
   MongoClient.connect(uri, (err, client) => {
     let collection = client.db("ghpage").collection("user_counter");
     var reqIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     collection.insertOne({date: new Date(), page:req.params.page , ip: reqIP})
     .then(result => {
-      res.sendFile(path.join(__dirname, './img.png'));
+      res.sendFile('res/blue_brick.png', { root : __dirname})
     })
     .catch(error => console.error(error));
     client.close();
   });
-
-  res.sendFile('res/solo.png', { root : __dirname})
 })
