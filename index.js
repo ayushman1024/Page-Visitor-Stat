@@ -55,12 +55,12 @@ app.get('/counter/:page', function (req, res) {
  * Used in github welcome page hidden under image to track visitor
  */
 app.get('/counterimg/:page', function (req, res) {
+res.sendFile('res/blue_brick.png', { root : __dirname});
   MongoClient.connect(uri, (err, client) => {
     let collection = client.db("ghpage").collection("user_counter");
     var reqIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     collection.insertOne({date: new Date(), page:req.params.page , ip: reqIP})
     .then(result => {
-      res.sendFile('res/blue_brick.png', { root : __dirname})
     })
     .catch(error => console.error(error));
     client.close();
